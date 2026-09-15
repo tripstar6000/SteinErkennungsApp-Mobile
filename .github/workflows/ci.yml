@@ -26,6 +26,23 @@ jobs:
       - name: Generate Android scaffold
         run: flutter create --platforms=android --org de.steinerkennungsapp --project-name steinerkennungsapp .
 
+      - name: Configure Android build compatibility
+        run: |
+          sed -i 's/compileSdk = flutter.compileSdkVersion/compileSdk = 37/' android/app/build.gradle.kts
+          sed -i 's/JavaVersion.VERSION_11/JavaVersion.VERSION_17/g' android/app/build.gradle.kts
+          cat >> android/build.gradle.kts <<'EOF'
+
+          subprojects {
+              tasks.withType<org.gradle.api.tasks.compile.JavaCompile>().configureEach {
+                  sourceCompatibility = JavaVersion.VERSION_17.toString()
+                  targetCompatibility = JavaVersion.VERSION_17.toString()
+              }
+              tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+                  kotlinOptions.jvmTarget = JavaVersion.VERSION_17.toString()
+              }
+          }
+          EOF
+
       - name: Remove generated Flutter demo test
         run: rm -f test/widget_test.dart
 
