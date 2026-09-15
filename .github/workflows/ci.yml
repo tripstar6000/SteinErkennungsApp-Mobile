@@ -33,12 +33,17 @@ jobs:
           cat >> android/build.gradle.kts <<'EOF'
 
           subprojects {
-              tasks.withType<org.gradle.api.tasks.compile.JavaCompile>().configureEach {
-                  sourceCompatibility = JavaVersion.VERSION_17.toString()
-                  targetCompatibility = JavaVersion.VERSION_17.toString()
-              }
               tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions>>().configureEach {
                   compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+              }
+          }
+
+          gradle.projectsEvaluated {
+              allprojects {
+                  tasks.withType<org.gradle.api.tasks.compile.JavaCompile>().configureEach {
+                      sourceCompatibility = JavaVersion.VERSION_17.toString()
+                      targetCompatibility = JavaVersion.VERSION_17.toString()
+                  }
               }
           }
           EOF
