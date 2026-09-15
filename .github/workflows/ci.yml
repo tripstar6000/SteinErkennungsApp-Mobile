@@ -29,35 +29,13 @@ jobs:
       - name: Configure Android build compatibility
         run: |
           sed -i 's/compileSdk = flutter.compileSdkVersion/compileSdk = 37/' android/app/build.gradle.kts
-          sed -i 's/JavaVersion.VERSION_11/JavaVersion.VERSION_17/g' android/app/build.gradle.kts
           cat >> android/build.gradle.kts <<'EOF'
 
-          subprojects {
-              plugins.withId("com.android.library") {
-                  extensions.configure<com.android.build.api.dsl.LibraryExtension> {
-                      compileSdk = 37
-                      compileOptions {
-                          sourceCompatibility = JavaVersion.VERSION_17
-                          targetCompatibility = JavaVersion.VERSION_17
-                      }
-                  }
-              }
+          // tflite_flutter 0.12.1 declares Java 11; match its Kotlin bytecode target.
+          // Leave Android's Java compilation and SDK configuration for other plugins intact.
+          project(":tflite_flutter") {
               tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions>>().configureEach {
-                  compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
-              }
-          }
-
-          gradle.projectsEvaluated {
-              allprojects {
-                  plugins.withId("com.android.library") {
-                      extensions.configure<com.android.build.api.dsl.LibraryExtension> {
-                          compileSdk = 37
-                      }
-                  }
-                  tasks.withType<org.gradle.api.tasks.compile.JavaCompile>().configureEach {
-                      sourceCompatibility = JavaVersion.VERSION_17.toString()
-                      targetCompatibility = JavaVersion.VERSION_17.toString()
-                  }
+                  compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
               }
           }
           EOF
