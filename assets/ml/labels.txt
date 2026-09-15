@@ -1,0 +1,7 @@
+Coal
+Limestone
+Marble
+Sandstone
+Quartzite
+Basalt
+Granite

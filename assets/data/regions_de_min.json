@@ -1,0 +1,13 @@
+{
+  "package_id": "regional-context-de-bootstrap-v1",
+  "version": "1.0.0",
+  "note": "Bootstrap-Metadaten. Punktgenaue deutschlandweite BGR-GUEK250-Abfragen bleiben online; kuratierte Profile koennen vom Backend als Offline-Paket aktualisiert werden.",
+  "regions": [
+    {
+      "id": "de-nw-hagen-northern-sauerland-v1",
+      "name": "Hagen / noerdliches Sauerland",
+      "source": "Geologischer Dienst NRW",
+      "evidence": ["Massenkalk/Kalkstein", "Dolomitstein", "Sandstein", "Ton- und Schluffstein"]
+    }
+  ]
+}
