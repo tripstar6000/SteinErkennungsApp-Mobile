@@ -1,9 +1,0 @@
-{
-  "model_sha256": "GENERATED_BY_TRAINING_PIPELINE",
-  "labels_sha256": "GENERATED_BY_TRAINING_PIPELINE",
-  "input_type": "float32",
-  "normalization": "MobileNetV3 preprocessing embedded in model; app passes RGB float32 [0,255]",
-  "class_count": 7,
-  "dataset": "udayl/rocks",
-  "dataset_license": "MIT"
-}
