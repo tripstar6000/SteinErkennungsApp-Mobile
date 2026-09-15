@@ -46,6 +46,15 @@ jobs:
                   compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
               }
           }
+
+          gradle.projectsEvaluated {
+              allprojects {
+                  tasks.withType<org.gradle.api.tasks.compile.JavaCompile>().configureEach {
+                      sourceCompatibility = JavaVersion.VERSION_17.toString()
+                      targetCompatibility = JavaVersion.VERSION_17.toString()
+                  }
+              }
+          }
           EOF
 
       - name: Remove generated Flutter demo test
