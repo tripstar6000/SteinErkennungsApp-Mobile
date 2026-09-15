@@ -32,30 +32,32 @@ jobs:
           sed -i 's/JavaVersion.VERSION_11/JavaVersion.VERSION_17/g' android/app/build.gradle.kts
           cat >> android/build.gradle.kts <<'EOF'
 
-          gradle.beforeProject { project ->
-              project.plugins.withId("com.android.library") {
-                  project.extensions.configure<com.android.build.api.dsl.LibraryExtension> {
+          subprojects {
+              plugins.withId("com.android.library") {
+                  extensions.configure<com.android.build.api.dsl.LibraryExtension> {
                       compileSdk = 37
                       compileOptions {
                           sourceCompatibility = JavaVersion.VERSION_17
                           targetCompatibility = JavaVersion.VERSION_17
                       }
                   }
-                  project.afterEvaluate {
-                      project.extensions.configure<com.android.build.api.dsl.LibraryExtension> {
-                          compileSdk = 37
-                      }
-                      project.tasks.withType(org.gradle.api.tasks.compile.JavaCompile::class.java).configureEach { task ->
-                          task.sourceCompatibility = JavaVersion.VERSION_17.toString()
-                          task.targetCompatibility = JavaVersion.VERSION_17.toString()
-                      }
-                  }
+              }
+              tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions>>().configureEach {
+                  compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
               }
           }
 
-          subprojects {
-              tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions>>().configureEach {
-                  compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+          gradle.projectsEvaluated {
+              allprojects {
+                  plugins.withId("com.android.library") {
+                      extensions.configure<com.android.build.api.dsl.LibraryExtension> {
+                          compileSdk = 37
+                      }
+                  }
+                  tasks.withType<org.gradle.api.tasks.compile.JavaCompile>().configureEach {
+                      sourceCompatibility = JavaVersion.VERSION_17.toString()
+                      targetCompatibility = JavaVersion.VERSION_17.toString()
+                  }
               }
           }
           EOF
