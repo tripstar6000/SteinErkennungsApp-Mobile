@@ -44,14 +44,10 @@ jobs:
                   project.afterEvaluate {
                       project.extensions.configure<com.android.build.api.dsl.LibraryExtension> {
                           compileSdk = 37
-                          compileOptions {
-                              sourceCompatibility = JavaVersion.VERSION_17
-                              targetCompatibility = JavaVersion.VERSION_17
-                          }
                       }
-                      project.tasks.withType<org.gradle.api.tasks.compile.JavaCompile>().configureEach {
-                          sourceCompatibility = JavaVersion.VERSION_17.toString()
-                          targetCompatibility = JavaVersion.VERSION_17.toString()
+                      project.tasks.withType(org.gradle.api.tasks.compile.JavaCompile::class.java).configureEach { task ->
+                          task.sourceCompatibility = JavaVersion.VERSION_17.toString()
+                          task.targetCompatibility = JavaVersion.VERSION_17.toString()
                       }
                   }
               }
