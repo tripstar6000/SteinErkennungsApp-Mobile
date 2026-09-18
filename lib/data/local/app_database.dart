@@ -3,13 +3,23 @@ import 'dart:convert';
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
 
-class AppDatabase {
-  Database? _db;
+import '../../services/scan_image_store.dart';
 
-  Future<Database> get database async {
-    if (_db case final db?) return db;
+class AppDatabase {
+  AppDatabase({ScanImageStore? imageStore})
+      : _imageStore = imageStore ?? ScanImageStore();
+
+  final ScanImageStore _imageStore;
+  Future<Database>? _opening;
+
+  Future<Database> get database => _opening ??= _open().catchError((Object error) {
+    _opening = null;
+    throw error;
+  });
+
+  Future<Database> _open() async {
     final dbPath = await getDatabasesPath();
-    _db = await openDatabase(
+    return openDatabase(
       p.join(dbPath, 'steinerkennungsapp.db'),
       version: 1,
       onCreate: (db, _) async {

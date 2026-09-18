@@ -91,6 +91,15 @@ class ScanPrediction {
   final String regionalLevel;
   final String regionalExplanation;
 
+  Map<String, dynamic> toJson() => {
+    'name': name,
+    'visualFit': visualFit,
+    'reason': reason,
+    'category': category,
+    'regionalLevel': regionalLevel,
+    'regionalExplanation': regionalExplanation,
+  };
+
   ScanPrediction copyWith({
     int? visualFit,
     String? regionalLevel,
@@ -120,6 +129,11 @@ class ReferenceImage {
   final String license;
   final String author;
   final String provider;
+
+  Map<String, dynamic> toJson() => {
+    'src': src, 'source': source, 'license': license,
+    'author': author, 'provider': provider,
+  };
 
   factory ReferenceImage.fromJson(Map<String, dynamic> json) => ReferenceImage(
         src: (json['src'] ?? '').toString(),
@@ -152,6 +166,17 @@ class CandidateComparison {
   final ReferenceImage? reference;
   final List<ReferenceImage> gallery;
   final String referenceStatus;
+
+  Map<String, dynamic> toJson() => {
+    'candidateName': candidateName,
+    'verdict': verdict,
+    'supports': supports,
+    'contradicts': contradicts,
+    'traditionalBeliefs': {'summary': traditionalSummary, 'claims': traditionalClaims},
+    'reference': reference?.toJson(),
+    'gallery': gallery.map((image) => image.toJson()).toList(),
+    'referenceLibraryStatus': referenceStatus,
+  };
 
   factory CandidateComparison.fromJson(Map<String, dynamic> json) {
     final beliefs = (json['traditionalBeliefs'] as Map?)?.cast<String, dynamic>() ?? const {};
@@ -192,6 +217,12 @@ class RegionContext {
   final String method;
   final List<Map<String, dynamic>> sources;
   final List<Map<String, dynamic>> ranking;
+
+  Map<String, dynamic> toJson() => {
+    'supplied': supplied, 'profileMatched': profileMatched,
+    'regionName': regionName, 'reason': reason, 'method': method,
+    'sources': sources, 'regionalOrder': ranking,
+  };
 
   factory RegionContext.fromJson(Map<String, dynamic> json) => RegionContext(
         supplied: json['supplied'] == true,
@@ -239,14 +270,26 @@ class ScanResult {
   final RegionContext region;
   final String source;
 
-  factory ScanResult.fromJson(Map<String, dynamic> json, {String source = 'remote'}) => ScanResult(
+  Map<String, dynamic> toJson() => {
+    'candidates': candidates.map((candidate) => candidate.toJson()).toList(),
+    'candidateComparisons': comparisons.map((comparison) => comparison.toJson()).toList(),
+    'observations': observations,
+    'uncertainty': uncertainty,
+    'needsMoreInfo': needsMoreInfo,
+    'regionContext': region.toJson(),
+    'source': source,
+  };
+
+  factory ScanResult.fromJson(Map<String, dynamic> json, {String? source}) => ScanResult(
         candidates: (json['candidates'] as List? ?? const []).whereType<Map>().map((item) {
           final m = item.cast<String, dynamic>();
           return ScanPrediction(
             name: (m['name'] ?? 'Unbekannt').toString(),
-            visualFit: (m['visualFit'] as num? ?? 0).round(),
+            visualFit: (m['visualFit'] as num? ?? 0).round().clamp(0, 100).toInt(),
             reason: (m['reason'] ?? '').toString(),
             category: (m['category'] ?? '').toString(),
+            regionalLevel: (m['regionalLevel'] ?? 'none').toString(),
+            regionalExplanation: (m['regionalExplanation'] ?? '').toString(),
           );
         }).toList(),
         comparisons: (json['candidateComparisons'] as List? ?? const [])
@@ -259,6 +302,6 @@ class ScanResult {
         region: json['regionContext'] is Map
             ? RegionContext.fromJson((json['regionContext'] as Map).cast<String, dynamic>())
             : RegionContext.empty,
-        source: source,
+        source: source ?? (json['source'] ?? 'remote').toString(),
       );
 }

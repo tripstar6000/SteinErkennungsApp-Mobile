@@ -1,7 +1,9 @@
 class AppConfig {
   static const String appName = 'SteinErkennungsApp';
-  static const String apiBaseUrl =
-      'https://steinerkennungsapp-o1oljh.v2.appdeploy.ai';
+  static const String apiBaseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: 'https://api-v2.appdeploy.ai/app/steinerkennungsapp-o1oljh',
+  );
 
   static const int maxScanPhotos = 3;
   static const int minScanPhotos = 2;

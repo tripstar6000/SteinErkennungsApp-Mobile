@@ -12,7 +12,11 @@ import 'offline_package_service.dart';
 import 'physical_refiner.dart';
 
 final databaseProvider = Provider((ref) => AppDatabase());
-final apiProvider = Provider((ref) => ApiClient());
+final apiProvider = Provider((ref) {
+  final client = ApiClient();
+  ref.onDispose(client.close);
+  return client;
+});
 final catalogProvider = Provider((ref) => CatalogRepository());
 final modelManagerProvider = Provider((ref) => ModelManager());
 final locationServiceProvider = Provider((ref) => LocationService());

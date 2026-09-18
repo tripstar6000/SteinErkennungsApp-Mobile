@@ -25,9 +25,10 @@ class ScanRepository {
     required List<String> perspectives,
     String? reducedLocation,
     bool preferOffline = true,
+    bool allowRemote = false,
   }) async {
-    if (images.length < 2) {
-      return const AppFailure('Mindestens zwei Perspektiven sind erforderlich.');
+    if (images.length < 2 || images.length > 3 || perspectives.length != images.length) {
+      return const AppFailure('Zwei bis drei Bilder mit jeweils einer Perspektive sind erforderlich.');
     }
 
     if (preferOffline) {
@@ -37,6 +38,7 @@ class ScanRepository {
           perImage.add(await _localInference.classify(image));
         }
         final aggregated = _aggregate(perImage);
+        if (aggregated.isEmpty) throw StateError('Keine Offline-Kandidaten.');
         return AppSuccess(ScanResult(
           candidates: aggregated,
           comparisons: const [],
@@ -56,6 +58,12 @@ class ScanRepository {
       }
     }
 
+    if (!allowRemote) {
+      return const AppFailure(
+        'Kein nutzbares Offline-Modell vorhanden. Für die Online-Erkennung bitte den Bildversand erlauben. Ohne Modell und Internet ist keine Fotoerkennung möglich.',
+      );
+    }
+
     try {
       final prepared = <PreparedImage>[];
       for (final image in images) {
@@ -73,7 +81,13 @@ class ScanRepository {
         if (reducedLocation != null) 'location': reducedLocation,
       };
       final json = await _api.postJson('/api/identify', body);
-      return AppSuccess(ScanResult.fromJson(json, source: 'remote_ai'));
+      final result = ScanResult.fromJson(json, source: 'remote_ai');
+      if (result.candidates.isEmpty) {
+        return const AppFailure('Keine Bestimmung möglich. Bitte schärfere Fotos aus unterschiedlichen Perspektiven aufnehmen.');
+      }
+      return AppSuccess(result);
+    } on ApiException catch (e) {
+      return AppFailure(e.message, e);
     } catch (e) {
       return AppFailure(
         'Weder lokales Modell noch Online-Erkennung waren verfuegbar.',
