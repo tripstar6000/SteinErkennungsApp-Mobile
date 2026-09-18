@@ -1,36 +1,7 @@
-﻿name: mobile-ci
-
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-  workflow_dispatch:
-
-jobs:
-  analyze-test-android:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          cache: true
-
-      - name: Generate Android scaffold
-        run: flutter create --platforms=android --org de.steinerkennungsapp --project-name steinerkennungsapp .
-
-      - name: Configure Android build compatibility
+ - name: Configure Android build compatibility
         run: |
           sed -i 's/compileSdk = flutter.compileSdkVersion/compileSdk = 37/' android/app/build.gradle.kts
           cat >> android/build.gradle.kts <<'EOF'
-
           // tflite_flutter 0.12.1 declares Java 11; match its Kotlin bytecode target.
           // Leave Android's Java compilation and SDK configuration for other plugins intact.
           project(":tflite_flutter") {
@@ -40,17 +11,17 @@ jobs:
           }
           EOF
 
-      - name: Remove generated Flutter demo test
+      - name: Remove generated demo test
         run: rm -f test/widget_test.dart
 
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Format check
-        run: dart format lib test integration_test
+      - name: Format check (fail on diff)
+        run: dart format --set-exit-if-changed lib test integration_test
 
       - name: Analyze
-        run: flutter analyze --no-fatal-infos --no-fatal-warnings --no-fatal-infos --no-fatal-warnings
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
 
       - name: Unit tests
         run: flutter test
@@ -67,7 +38,6 @@ jobs:
 
   ios-unsigned:
     runs-on: macos-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -78,14 +48,18 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Generate iOS scaffold
-        run: flutter create --platforms=ios --org de.steinerkennungsapp --project-name steinerkennungsapp .
+      #- name: Generate iOS scaffold
+      #  run: flutter create --platforms=ios --org de.steinerkennungsapp --project-name steinerkennungsapp .
 
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Build unsigned iOS app
+      - name: Build unsigned iOS app (debug)
         run: flutter build ios --debug --no-codesign
 
-
-
+      - name: Upload iOS unsigned app
+        uses: actions/upload-artifact@v4
+        with:
+          name: SteinErkennungsApp-ios-debug
+          path: build/ios/iphoneos/debug/*.app
+          retention-days: 14
