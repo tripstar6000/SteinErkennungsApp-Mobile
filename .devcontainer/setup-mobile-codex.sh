@@ -14,13 +14,13 @@ if [ "$NODE_MAJOR" -lt 16 ]; then
   exit 1
 fi
 
+export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
+
 if ! command -v codex >/dev/null 2>&1; then
   echo "Installiere Codex CLI ..."
-  curl -fsSL https://chatgpt.com/codex/install.sh | sh
+  curl -fsSL https://chatgpt.com/codex/install.sh | CODEX_NON_INTERACTIVE=1 sh
 fi
 
-# Der Standalone-Installer kann Codex unter ~/.local/bin ablegen.
-export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 if ! grep -Fq 'export PATH="$HOME/.local/bin:$HOME/bin:$PATH"' "$HOME/.bashrc" 2>/dev/null; then
   printf '\nexport PATH="$HOME/.local/bin:$HOME/bin:$PATH"\n' >> "$HOME/.bashrc"
 fi
