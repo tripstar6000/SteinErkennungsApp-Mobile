@@ -1,6 +1,0 @@
-{
-  "name": "SteinErkennungsApp Mobile Codex",
-  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
-  "postCreateCommand": "bash .devcontainer/setup-mobile-codex.sh",
-  "remoteUser": "node"
-}
