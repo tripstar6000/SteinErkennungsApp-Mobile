@@ -1,4 +1,5 @@
 FROM nginx:alpine
+# Railway source deploy trigger: Anlage mode
 COPY index.part*.b64 /tmp/
 RUN cat /tmp/index.part*.b64 | tr -d '\r\n' | base64 -d | gzip -d > /usr/share/nginx/html/index.html \
     && test -s /usr/share/nginx/html/index.html \
